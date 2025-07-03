@@ -14,8 +14,8 @@ Fluxo Geral
 5.	Repositório acessa o banco de dados para persistir ou recuperar informações.
 6.	Resposta é enviada de volta ao usuário.
 
-![image](https://github.com/user-attachments/assets/905ee4d0-8fa7-4739-8592-27caadc5987a)
 
+![image](https://github.com/user-attachments/assets/71de9ccf-7a51-48c5-82df-9af364c8f0e8)
 
 
 Resumo das Responsabilidades
