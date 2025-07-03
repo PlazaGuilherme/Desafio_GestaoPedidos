@@ -20,7 +20,7 @@ namespace GestaoPreco.Application.QueryHandlers
 
         public async Task<Order?> Handle(GetOrderByIdQuery request, CancellationToken cancellationToken)
         {
-            return await _repository.GetByIdAsync(request.Id);
+            return await _repository.GetByIdWithItemsAsync(request.Id);
         }
     }
 }

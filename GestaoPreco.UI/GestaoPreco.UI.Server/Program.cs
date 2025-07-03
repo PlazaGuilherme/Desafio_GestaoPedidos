@@ -1,7 +1,8 @@
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using MediatR;
-
+using MongoDB.Driver;
+using Domain;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,21 @@ var mongoConnectionString = builder.Configuration.GetConnectionString("MongoDb")
 
 var sqlConnectionString = builder.Configuration.GetConnectionString("SqlServer") 
     ?? "Server=localhost;Database=GestaoPrecoDb;Trusted_Connection=True;TrustServerCertificate=True;";
+
+var mongoClient = new MongoClient(mongoConnectionString);
+var mongoDatabase = mongoClient.GetDatabase("GestaoPrecoDb");
+
+builder.Services.AddSingleton<IMongoCollection<Order>>(sp =>
+    mongoDatabase.GetCollection<Order>("Orders"));
+
+builder.Services.AddSingleton<IMongoCollection<OrderItem>>(sp =>
+    mongoDatabase.GetCollection<OrderItem>("OrderItems"));
+
+builder.Services.AddSingleton<IMongoCollection<Product>>(sp =>
+    mongoDatabase.GetCollection<Product>("Products"));
+
+builder.Services.AddSingleton<IMongoCollection<Customer>>(sp =>
+    mongoDatabase.GetCollection<Customer>("Customers"));
 
 builder.Services.AddSingleton<MongoDbContext>();
 
