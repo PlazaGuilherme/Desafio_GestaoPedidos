@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GestaoPreco.Infrastructure\GestaoPreco.Infrastructure.csproj" />
+    <ProjectReference Include="..\GestaoPreco.Infrastructure\GestaoPedido.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

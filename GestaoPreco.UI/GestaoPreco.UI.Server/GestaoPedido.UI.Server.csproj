@@ -24,9 +24,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\GestaoPreco.Application\GestaoPreco.Application.csproj" />
-    <ProjectReference Include="..\..\GestaoPreco.Infrastructure\GestaoPreco.Infrastructure.csproj" />
-    <ProjectReference Include="..\gestaopreco.ui.client\gestaopreco.ui.client.esproj">
+    <ProjectReference Include="..\..\GestaoPreco.Application\GestaoPedido.Application.csproj" />
+    <ProjectReference Include="..\..\GestaoPreco.Infrastructure\GestaoPedido.Infrastructure.csproj" />
+    <ProjectReference Include="..\gestaopreco.ui.client\gestaopedido.ui.client.esproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
