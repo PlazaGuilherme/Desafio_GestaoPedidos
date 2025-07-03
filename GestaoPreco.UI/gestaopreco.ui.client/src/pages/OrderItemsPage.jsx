@@ -79,133 +79,177 @@ export default function OrderItemsPage() {
     setForm({ productId: '', productName: '', quantity: '', unitPrice: '', orderId: '' });
   };
 
-  if (isLoading) return <div>Carregando...</div>;
-  if (error) return <div>Erro ao carregar itens do pedido: {error.message}</div>;
+  if (isLoading) return <div className="loading">⏳ Carregando itens de pedido...</div>;
+  if (error) return <div className="error">❌ Erro ao carregar itens de pedido: {error.message}</div>;
 
   return (
-    <div>
-      <h2>Itens do Pedido</h2>
-      <p>Total de itens: {data ? data.length : 0}</p>
-      
-      {/* Formulário de criação/edição */}
-      <div style={{ border: '1px solid #ccc', padding: 20, marginBottom: 20 }}>
-        <h3>{editing ? 'Editar Item de Pedido' : 'Criar Novo Item de Pedido'}</h3>
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: 10 }}>
-            <label>ID do Produto: </label>
-            <input
-              placeholder="ID do produto"
-              value={form.productId}
-              onChange={e => setForm(f => ({ ...f, productId: e.target.value }))}
-              required
-              style={{ width: '200px' }}
-            />
+    <div className="fade-in">
+      <div className="card">
+        <div className="d-flex justify-between align-center mb-20">
+          <h2>🛒 Gerenciamento de Itens de Pedido</h2>
+          <div className="badge badge-processing">
+            Total: {data ? data.length : 0} itens
           </div>
-          <div style={{ marginBottom: 10 }}>
-            <label>Nome do Produto: </label>
-            <input
-              placeholder="Nome do produto"
-              value={form.productName}
-              onChange={e => setForm(f => ({ ...f, productName: e.target.value }))}
-              required
-              style={{ width: '200px' }}
-            />
-          </div>
-          <div style={{ marginBottom: 10 }}>
-            <label>Quantidade: </label>
-            <input
-              placeholder="Quantidade"
-              type="number"
-              min="1"
-              value={form.quantity}
-              onChange={e => setForm(f => ({ ...f, quantity: e.target.value }))}
-              required
-              style={{ width: '200px' }}
-            />
-          </div>
-          <div style={{ marginBottom: 10 }}>
-            <label>Preço Unitário: </label>
-            <input
-              placeholder="Preço unitário"
-              type="number"
-              step="0.01"
-              min="0"
-              value={form.unitPrice}
-              onChange={e => setForm(f => ({ ...f, unitPrice: e.target.value }))}
-              required
-              style={{ width: '200px' }}
-            />
-          </div>
-          <div style={{ marginBottom: 10 }}>
-            <label>ID do Pedido: </label>
-            <input
-              placeholder="ID do pedido"
-              value={form.orderId}
-              onChange={e => setForm(f => ({ ...f, orderId: e.target.value }))}
-              required
-              style={{ width: '200px' }}
-            />
-          </div>
-          <button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
-            {createMutation.isPending || updateMutation.isPending 
-              ? (editing ? 'Atualizando...' : 'Criando...') 
-              : (editing ? 'Atualizar' : 'Criar Item')}
-          </button>
-          {editing && (
-            <button type="button" onClick={handleCancelEdit} style={{ marginLeft: 10 }}>
-              Cancelar
-            </button>
-          )}
-        </form>
-      </div>
+        </div>
+        
+        {/* Formulário de criação/edição */}
+        <div className="card">
+          <h3>{editing ? '✏️ Editar Item de Pedido' : '➕ Criar Novo Item de Pedido'}</h3>
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-2">
+              <div className="form-group">
+                <label>ID do Produto</label>
+                <input
+                  className="form-control"
+                  placeholder="Digite o ID do produto"
+                  value={form.productId}
+                  onChange={e => setForm(f => ({ ...f, productId: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Nome do Produto</label>
+                <input
+                  className="form-control"
+                  placeholder="Digite o nome do produto"
+                  value={form.productName}
+                  onChange={e => setForm(f => ({ ...f, productName: e.target.value }))}
+                  required
+                />
+              </div>
+            </div>
+            <div className="grid grid-3">
+              <div className="form-group">
+                <label>Quantidade</label>
+                <input
+                  className="form-control"
+                  placeholder="Quantidade"
+                  type="number"
+                  min="1"
+                  value={form.quantity}
+                  onChange={e => setForm(f => ({ ...f, quantity: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Preço Unitário (R$)</label>
+                <input
+                  className="form-control"
+                  placeholder="0.00"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={form.unitPrice}
+                  onChange={e => setForm(f => ({ ...f, unitPrice: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>ID do Pedido</label>
+                <input
+                  className="form-control"
+                  placeholder="Digite o ID do pedido"
+                  value={form.orderId}
+                  onChange={e => setForm(f => ({ ...f, orderId: e.target.value }))}
+                  required
+                />
+              </div>
+            </div>
+            <div className="d-flex gap-10">
+              <button 
+                type="submit" 
+                className="btn btn-primary"
+                disabled={createMutation.isPending || updateMutation.isPending}
+              >
+                {createMutation.isPending || updateMutation.isPending 
+                  ? (editing ? '⏳ Atualizando...' : '⏳ Criando...') 
+                  : (editing ? '✅ Atualizar' : '➕ Criar Item')}
+              </button>
+              {editing && (
+                <button 
+                  type="button" 
+                  className="btn btn-secondary"
+                  onClick={handleCancelEdit}
+                >
+                  ❌ Cancelar
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
 
-      {/* Lista de itens */}
-      <h3>Lista de Itens de Pedido</h3>
-      <table border="1" cellPadding="8" style={{ width: '100%' }}>
-        <thead>
-          <tr>
-            <th>Produto</th>
-            <th>Quantidade</th>
-            <th>Preço Unitário</th>
-            <th>Total</th>
-            <th>ID do Pedido</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data && data.length > 0 ? (
-            data.map(i => (
-              <tr key={i.id}>
-                <td>{i.productName}</td>
-                <td>{i.quantity}</td>
-                <td>R$ {i.unitPrice}</td>
-                <td>R$ {(i.quantity * i.unitPrice).toFixed(2)}</td>
-                <td>{i.orderId}</td>
-                <td>
-                  <button 
-                    onClick={() => handleEdit(i)}
-                    disabled={deleteMutation.isPending}
-                    style={{ marginRight: 5 }}
-                  >
-                    Editar
-                  </button>
-                  <button 
-                    onClick={() => handleDelete(i)}
-                    disabled={deleteMutation.isPending}
-                    style={{ backgroundColor: '#ff4444', color: 'white' }}
-                  >
-                    {deleteMutation.isPending ? 'Removendo...' : 'Remover'}
-                  </button>
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="6">Nenhum item de pedido encontrado</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+        {/* Lista de itens */}
+        <div className="card">
+          <h3>📋 Lista de Itens de Pedido</h3>
+          <div className="table-container">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Produto</th>
+                  <th>Quantidade</th>
+                  <th>Preço Unitário</th>
+                  <th>Total</th>
+                  <th>ID do Pedido</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data && data.length > 0 ? (
+                  data.map(i => (
+                    <tr key={i.id}>
+                      <td>
+                        <strong>{i.productName}</strong>
+                      </td>
+                      <td>
+                        <span className="badge badge-pending">
+                          {i.quantity}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="badge badge-processing">
+                          R$ {parseFloat(i.unitPrice).toFixed(2)}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="badge badge-completed">
+                          R$ {(i.quantity * i.unitPrice).toFixed(2)}
+                        </span>
+                      </td>
+                      <td>
+                        <strong>#{i.orderId?.slice(0, 8) || 'N/A'}</strong>
+                      </td>
+                      <td>
+                        <div className="d-flex gap-10">
+                          <button 
+                            className="btn btn-secondary"
+                            onClick={() => handleEdit(i)}
+                            disabled={deleteMutation.isPending}
+                          >
+                            ✏️ Editar
+                          </button>
+                          <button 
+                            className="btn btn-danger"
+                            onClick={() => handleDelete(i)}
+                            disabled={deleteMutation.isPending}
+                          >
+                            {deleteMutation.isPending ? '⏳ Removendo...' : '🗑️ Remover'}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" className="text-center">
+                      📭 Nenhum item de pedido encontrado
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   );
 } 

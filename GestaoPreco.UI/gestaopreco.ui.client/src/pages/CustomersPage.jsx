@@ -73,93 +73,121 @@ export default function CustomersPage() {
     setForm({ name: '', email: '' });
   };
 
-  if (isLoading) return <div>Carregando...</div>;
-  if (error) return <div>Erro ao carregar clientes: {error.message}</div>;
+  if (isLoading) return <div className="loading">⏳ Carregando clientes...</div>;
+  if (error) return <div className="error">❌ Erro ao carregar clientes: {error.message}</div>;
 
   return (
-    <div>
-      <h2>Clientes</h2>
-      <p>Total de clientes: {data ? data.length : 0}</p>
-      
-      {/* Formulário de criação/edição */}
-      <div style={{ border: '1px solid #ccc', padding: 20, marginBottom: 20 }}>
-        <h3>{editing ? 'Editar Cliente' : 'Criar Novo Cliente'}</h3>
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: 10 }}>
-            <label>Nome: </label>
-            <input
-              placeholder="Nome do cliente"
-              value={form.name}
-              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-              required
-              style={{ width: '200px' }}
-            />
+    <div className="fade-in">
+      <div className="card">
+        <div className="d-flex justify-between align-center mb-20">
+          <h2>👥 Gerenciamento de Clientes</h2>
+          <div className="badge badge-pending">
+            Total: {data ? data.length : 0} clientes
           </div>
-          <div style={{ marginBottom: 10 }}>
-            <label>Email: </label>
-            <input
-              placeholder="Email do cliente"
-              type="email"
-              value={form.email}
-              onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-              required
-              style={{ width: '200px' }}
-            />
-          </div>
-          <button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
-            {createMutation.isPending || updateMutation.isPending 
-              ? (editing ? 'Atualizando...' : 'Criando...') 
-              : (editing ? 'Atualizar' : 'Criar Cliente')}
-          </button>
-          {editing && (
-            <button type="button" onClick={handleCancelEdit} style={{ marginLeft: 10 }}>
-              Cancelar
-            </button>
-          )}
-        </form>
-      </div>
+        </div>
+        
+        {/* Formulário de criação/edição */}
+        <div className="card">
+          <h3>{editing ? '✏️ Editar Cliente' : '➕ Criar Novo Cliente'}</h3>
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-2">
+              <div className="form-group">
+                <label>Nome do Cliente</label>
+                <input
+                  className="form-control"
+                  placeholder="Digite o nome completo"
+                  value={form.name}
+                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Email</label>
+                <input
+                  className="form-control"
+                  placeholder="Digite o email"
+                  type="email"
+                  value={form.email}
+                  onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                  required
+                />
+              </div>
+            </div>
+            <div className="d-flex gap-10">
+              <button 
+                type="submit" 
+                className="btn btn-primary"
+                disabled={createMutation.isPending || updateMutation.isPending}
+              >
+                {createMutation.isPending || updateMutation.isPending 
+                  ? (editing ? '⏳ Atualizando...' : '⏳ Criando...') 
+                  : (editing ? '✅ Atualizar' : '➕ Criar Cliente')}
+              </button>
+              {editing && (
+                <button 
+                  type="button" 
+                  className="btn btn-secondary"
+                  onClick={handleCancelEdit}
+                >
+                  ❌ Cancelar
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
 
-      {/* Lista de clientes */}
-      <h3>Lista de Clientes</h3>
-      <table border="1" cellPadding="8" style={{ width: '100%' }}>
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Email</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data && data.length > 0 ? (
-            data.map(c => (
-              <tr key={c.id}>
-                <td>{c.name}</td>
-                <td>{c.email}</td>
-                <td>
-                  <button 
-                    onClick={() => handleEdit(c)}
-                    disabled={deleteMutation.isPending}
-                    style={{ marginRight: 5 }}
-                  >
-                    Editar
-                  </button>
-                  <button 
-                    onClick={() => handleDelete(c)}
-                    disabled={deleteMutation.isPending}
-                    style={{ backgroundColor: '#ff4444', color: 'white' }}
-                  >
-                    {deleteMutation.isPending ? 'Removendo...' : 'Remover'}
-                  </button>
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="3">Nenhum cliente encontrado</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+        {/* Lista de clientes */}
+        <div className="card">
+          <h3>📋 Lista de Clientes</h3>
+          <div className="table-container">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Email</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data && data.length > 0 ? (
+                  data.map(c => (
+                    <tr key={c.id}>
+                      <td>
+                        <strong>{c.name}</strong>
+                      </td>
+                      <td>{c.email}</td>
+                      <td>
+                        <div className="d-flex gap-10">
+                          <button 
+                            className="btn btn-secondary"
+                            onClick={() => handleEdit(c)}
+                            disabled={deleteMutation.isPending}
+                          >
+                            ✏️ Editar
+                          </button>
+                          <button 
+                            className="btn btn-danger"
+                            onClick={() => handleDelete(c)}
+                            disabled={deleteMutation.isPending}
+                          >
+                            {deleteMutation.isPending ? '⏳ Removendo...' : '🗑️ Remover'}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3" className="text-center">
+                      📭 Nenhum cliente encontrado
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   );
 } 

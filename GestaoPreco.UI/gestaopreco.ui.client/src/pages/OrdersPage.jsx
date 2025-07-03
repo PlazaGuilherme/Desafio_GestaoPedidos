@@ -150,175 +150,247 @@ export default function OrdersPage() {
 
   console.log('Estado atual:', { isLoading, error, data });
 
-  if (isLoading) return <div>Carregando...</div>;
+  if (isLoading) return <div className="loading">⏳ Carregando pedidos...</div>;
   if (error) return (
-    <div>
-      <div>Erro ao carregar pedidos: {error.message}</div>
-      <button onClick={handleTestRequest}>Testar Requisição Manual</button>
-      <button onClick={() => refetch()}>Tentar Novamente</button>
+    <div className="error">
+      ❌ Erro ao carregar pedidos: {error.message}
+      <div className="d-flex gap-10 mt-20">
+        <button className="btn btn-secondary" onClick={handleTestRequest}>
+          🧪 Testar Requisição Manual
+        </button>
+        <button className="btn btn-primary" onClick={() => refetch()}>
+          🔄 Tentar Novamente
+        </button>
+      </div>
     </div>
   );
 
+  const getStatusBadge = (status) => {
+    const statusMap = {
+      'Pending': 'badge-pending',
+      'Processing': 'badge-processing',
+      'Completed': 'badge-completed',
+      'Cancelled': 'badge-cancelled'
+    };
+    return `badge ${statusMap[status] || 'badge-pending'}`;
+  };
+
   return (
-    <div>
-      <h2>Pedidos</h2>
-      <p>Total de pedidos: {data ? data.length : 0}</p>
-      <button onClick={handleTestRequest} style={{ marginBottom: 10 }}>Testar Requisição</button>
-      
-      {/* Formulário de criação de pedido */}
-      <div style={{ border: '1px solid #ccc', padding: 20, marginBottom: 20 }}>
-        <h3>Criar Novo Pedido</h3>
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: 10 }}>
-            <label>Cliente: </label>
-            <select 
-              value={form.customerId} 
-              onChange={e => setForm(f => ({ ...f, customerId: e.target.value }))}
-              required
+    <div className="fade-in">
+      <div className="card">
+        <div className="d-flex justify-between align-center mb-20">
+          <h2>📋 Gerenciamento de Pedidos</h2>
+          <div className="badge badge-completed">
+            Total: {data ? data.length : 0} pedidos
+          </div>
+        </div>
+        
+        {/* Formulário de criação de pedido */}
+        <div className="card">
+          <h3>➕ Criar Novo Pedido</h3>
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-3">
+              <div className="form-group">
+                <label>Cliente</label>
+                <select 
+                  className="form-control"
+                  value={form.customerId} 
+                  onChange={e => setForm(f => ({ ...f, customerId: e.target.value }))}
+                  required
+                >
+                  <option value="">Selecione um cliente</option>
+                  {customers?.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Data do Pedido</label>
+                <input
+                  className="form-control"
+                  type="date"
+                  value={form.date}
+                  onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Status</label>
+                <select 
+                  className="form-control"
+                  value={form.status} 
+                  onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
+                  required
+                >
+                  <option value="Pending">Pendente</option>
+                  <option value="Processing">Processando</option>
+                  <option value="Completed">Concluído</option>
+                  <option value="Cancelled">Cancelado</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Adicionar itens */}
+            <div className="card">
+              <h4>🛒 Adicionar Item</h4>
+              <div className="grid grid-3">
+                <div className="form-group">
+                  <label>Produto</label>
+                  <select 
+                    className="form-control"
+                    value={newItem.productId} 
+                    onChange={e => setNewItem(f => ({ ...f, productId: e.target.value }))}
+                  >
+                    <option value="">Selecione um produto</option>
+                    {products?.map(p => (
+                      <option key={p.id} value={p.id}>{p.name} - R$ {p.price}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Quantidade</label>
+                  <input
+                    className="form-control"
+                    type="number"
+                    min="1"
+                    value={newItem.quantity}
+                    onChange={e => setNewItem(f => ({ ...f, quantity: e.target.value }))}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Preço Unitário (R$)</label>
+                  <input
+                    className="form-control"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={newItem.unitPrice}
+                    onChange={e => setNewItem(f => ({ ...f, unitPrice: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <button type="button" className="btn btn-secondary" onClick={addItem}>
+                ➕ Adicionar Item
+              </button>
+            </div>
+
+            {/* Lista de itens do pedido */}
+            {form.items.length > 0 && (
+              <div className="card">
+                <h4>📦 Itens do Pedido</h4>
+                <div className="table-container">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>Produto</th>
+                        <th>Quantidade</th>
+                        <th>Preço Unit.</th>
+                        <th>Total</th>
+                        <th>Ação</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {form.items.map((item, index) => (
+                        <tr key={index}>
+                          <td><strong>{item.productName}</strong></td>
+                          <td>{item.quantity}</td>
+                          <td>R$ {item.unitPrice}</td>
+                          <td>
+                            <span className="badge badge-completed">
+                              R$ {item.totalPrice}
+                            </span>
+                          </td>
+                          <td>
+                            <button 
+                              type="button" 
+                              className="btn btn-danger"
+                              onClick={() => removeItem(index)}
+                            >
+                              🗑️ Remover
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="text-center mt-20">
+                  <h4 className="badge badge-processing">
+                    Total do Pedido: R$ {form.items.reduce((total, item) => total + item.totalPrice, 0).toFixed(2)}
+                  </h4>
+                </div>
+              </div>
+            )}
+
+            <button 
+              type="submit" 
+              className="btn btn-primary"
+              disabled={createMutation.isPending}
             >
-              <option value="">Selecione um cliente</option>
-              {customers?.map(c => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
-          </div>
+              {createMutation.isPending ? '⏳ Criando...' : '✅ Criar Pedido'}
+            </button>
+          </form>
+        </div>
 
-          <div style={{ marginBottom: 10 }}>
-            <label>Data: </label>
-            <input
-              type="date"
-              value={form.date}
-              onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-              required
-            />
-          </div>
-
-          <div style={{ marginBottom: 10 }}>
-            <label>Status: </label>
-            <select 
-              value={form.status} 
-              onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
-              required
-            >
-              <option value="Pending">Pendente</option>
-              <option value="Processing">Processando</option>
-              <option value="Completed">Concluído</option>
-              <option value="Cancelled">Cancelado</option>
-            </select>
-          </div>
-
-          {/* Adicionar itens */}
-          <div style={{ border: '1px solid #ddd', padding: 10, marginBottom: 10 }}>
-            <h4>Adicionar Item</h4>
-            <div style={{ marginBottom: 10 }}>
-              <label>Produto: </label>
-              <select 
-                value={newItem.productId} 
-                onChange={e => setNewItem(f => ({ ...f, productId: e.target.value }))}
-              >
-                <option value="">Selecione um produto</option>
-                {products?.map(p => (
-                  <option key={p.id} value={p.id}>{p.name} - R$ {p.price}</option>
-                ))}
-              </select>
-            </div>
-
-            <div style={{ marginBottom: 10 }}>
-              <label>Quantidade: </label>
-              <input
-                type="number"
-                min="1"
-                value={newItem.quantity}
-                onChange={e => setNewItem(f => ({ ...f, quantity: e.target.value }))}
-              />
-            </div>
-
-            <div style={{ marginBottom: 10 }}>
-              <label>Preço Unitário: </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                value={newItem.unitPrice}
-                onChange={e => setNewItem(f => ({ ...f, unitPrice: e.target.value }))}
-              />
-            </div>
-
-            <button type="button" onClick={addItem}>Adicionar Item</button>
-          </div>
-
-          {/* Lista de itens do pedido */}
-          {form.items.length > 0 && (
-            <div style={{ marginBottom: 10 }}>
-              <h4>Itens do Pedido</h4>
-              <table border="1" cellPadding="5" style={{ width: '100%' }}>
-                <thead>
-                  <tr>
-                    <th>Produto</th>
-                    <th>Quantidade</th>
-                    <th>Preço Unit.</th>
-                    <th>Total</th>
-                    <th>Ação</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {form.items.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.productName}</td>
-                      <td>{item.quantity}</td>
-                      <td>R$ {item.unitPrice}</td>
-                      <td>R$ {item.totalPrice}</td>
+        {/* Lista de pedidos existentes */}
+        <div className="card">
+          <h3>📋 Pedidos Existentes</h3>
+          <div className="table-container">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Cliente</th>
+                  <th>Data</th>
+                  <th>Status</th>
+                  <th>Total</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data && data.length > 0 ? (
+                  data.map(o => (
+                    <tr key={o.id}>
+                      <td><strong>#{o.id.slice(0, 8)}</strong></td>
+                      <td>{o.customerId}</td>
+                      <td>{new Date(o.orderDate).toLocaleDateString('pt-BR')}</td>
                       <td>
-                        <button type="button" onClick={() => removeItem(index)}>Remover</button>
+                        <span className={getStatusBadge(o.status)}>
+                          {o.status}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="badge badge-completed">
+                          R$ {parseFloat(o.totalAmount || 0).toFixed(2)}
+                        </span>
+                      </td>
+                      <td>
+                        <button 
+                          className="btn btn-danger"
+                          onClick={() => handleDelete(o)}
+                          disabled={deleteMutation.isPending}
+                        >
+                          {deleteMutation.isPending ? '⏳ Removendo...' : '🗑️ Remover'}
+                        </button>
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-              <p><strong>Total do Pedido: R$ {form.items.reduce((total, item) => total + item.totalPrice, 0)}</strong></p>
-            </div>
-          )}
-
-          <button type="submit" disabled={createMutation.isPending}>
-            {createMutation.isPending ? 'Criando...' : 'Criar Pedido'}
-          </button>
-        </form>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" className="text-center">
+                      📭 Nenhum pedido encontrado
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-
-      {/* Lista de pedidos existentes */}
-      <h3>Pedidos Existentes</h3>
-      <table border="1" cellPadding="8">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Cliente</th>
-            <th>Data</th>
-            <th>Status</th>
-            <th>Total</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data && data.length > 0 ? (
-            data.map(o => (
-              <tr key={o.id}>
-                <td>{o.id}</td>
-                <td>{o.customerId}</td>
-                <td>{o.orderDate}</td>
-                <td>{o.status}</td>
-                <td>{o.totalAmount}</td>
-                <td>
-                  <button onClick={() => handleDelete(o)}>Remover</button>
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="6">Nenhum pedido encontrado</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
     </div>
   );
 } 
