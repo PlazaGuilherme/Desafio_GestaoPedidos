@@ -1,7 +1,9 @@
 using Domain;
 using DTO;
-using Infrastructure;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using GestaoPreco.Application.Commands.Customer;
+using GestaoPreco.Application.Queries.Customer;
 
 namespace GestaoPreco.UI.Server.Controllers
 {
@@ -9,12 +11,12 @@ namespace GestaoPreco.UI.Server.Controllers
     [Route("[controller]")]
     public class CustomerController : ControllerBase
     {
-        private readonly ICustomerRepository _customerRepository;
+        private readonly IMediator _mediator;
         private readonly ILogger<CustomerController> _logger;
 
-        public CustomerController(ICustomerRepository customerRepository, ILogger<CustomerController> logger)
+        public CustomerController(IMediator mediator, ILogger<CustomerController> logger)
         {
-            _customerRepository = customerRepository;
+            _mediator = mediator;
             _logger = logger;
         }
 
@@ -25,7 +27,7 @@ namespace GestaoPreco.UI.Server.Controllers
         {
             try
             {
-                var customers = await _customerRepository.GetAllAsync();
+                var customers = await _mediator.Send(new ListCustomersQuery());
                 return Ok(customers.Select(CustomerDto.FromEntity));
             }
             catch
@@ -42,7 +44,7 @@ namespace GestaoPreco.UI.Server.Controllers
         {
             try
             {
-                var customer = await _customerRepository.GetByIdAsync(id);
+                var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = id });
                 if (customer == null)
                     return NotFound();
                 return Ok(CustomerDto.FromEntity(customer));
@@ -57,24 +59,22 @@ namespace GestaoPreco.UI.Server.Controllers
         [ProducesResponseType(typeof(CustomerDto), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> Create([FromBody] CreateCustomerDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateCustomerCommand command)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                var customer = new Customer
-                {
-                    Name = dto.Name,
-                    Email = dto.Email,
-                    Phone = dto.Phone
-                };
+                var customerId = await _mediator.Send(command);
+                if (customerId == Guid.Empty)
+                    return BadRequest();
 
-                await _customerRepository.AddAsync(customer);
-                _logger.LogInformation("Cliente criado: {CustomerId}", customer.Id);
+                _logger.LogInformation("Cliente criado: {CustomerId}", customerId);
 
-                return CreatedAtAction(nameof(GetById), new { id = customer.Id }, CustomerDto.FromEntity(customer));
+                // Opcional: buscar o cliente criado para retornar o DTO completo
+                var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = customerId });
+                return CreatedAtAction(nameof(GetById), new { id = customerId }, CustomerDto.FromEntity(customer));
             }
             catch
             {
@@ -87,29 +87,45 @@ namespace GestaoPreco.UI.Server.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCustomerDto dto)
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCustomerCommand command)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                var existingCustomer = await _customerRepository.GetByIdAsync(id);
-                if (existingCustomer == null)
+                command.Id = id;
+                var success = await _mediator.Send(command);
+                if (!success)
                     return NotFound();
 
-                existingCustomer.Name = dto.Name;
-                existingCustomer.Email = dto.Email;
-                existingCustomer.Phone = dto.Phone;
-
-                await _customerRepository.UpdateAsync(existingCustomer);
                 _logger.LogInformation("Cliente atualizado: {CustomerId}", id);
-
                 return NoContent();
             }
             catch
             {
                 return StatusCode(500, "Erro interno ao atualizar cliente.");
+            }
+        }
+
+        [HttpDelete("{id:guid}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            try
+            {
+                var success = await _mediator.Send(new DeleteCustomerCommand(id));
+                if (!success)
+                    return NotFound();
+
+                _logger.LogInformation("Cliente removido: {CustomerId}", id);
+                return NoContent();
+            }
+            catch
+            {
+                return StatusCode(500, "Erro interno ao remover cliente.");
             }
         }
     }

@@ -5,6 +5,7 @@ using Domain;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using GestaoPedido.Infrastructure.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 

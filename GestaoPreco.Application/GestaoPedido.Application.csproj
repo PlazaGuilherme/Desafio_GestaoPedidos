@@ -15,9 +15,7 @@
 
   <ItemGroup>
     <Folder Include="CommandHandlers\OrderHandlers\OrderItens\" />
-    <Folder Include="Commands\Customer\" />
     <Folder Include="Commands\OrderCommand\OrderItens\" />
-    <Folder Include="Queries\Customer\" />
     <Folder Include="Queries\Order\OrderItens\" />
     <Folder Include="Queries\Product\" />
     <Folder Include="QueryHandlers\Product\" />

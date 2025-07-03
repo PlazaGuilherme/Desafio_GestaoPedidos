@@ -4,8 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Infrastructure;
 
-namespace Infrastructure
+namespace GestaoPedido.Infrastructure.Repository
 {
     public class OrderItemRepository : IOrderItemRepository
     {

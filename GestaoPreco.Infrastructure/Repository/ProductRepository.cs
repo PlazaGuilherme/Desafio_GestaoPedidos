@@ -1,11 +1,12 @@
 using Domain;
+using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Infrastructure
+namespace GestaoPedido.Infrastructure.Repository
 {
     public class ProductRepository : IProductRepository
     {
