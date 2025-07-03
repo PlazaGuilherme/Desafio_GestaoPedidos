@@ -1,6 +1,8 @@
 using Domain;
-using Infrastructure;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Application.Queries.Product;
+using GestaoPreco.Application.Commands.Product;
 
 namespace GestaoPreco.UI.Server.Controllers
 {
@@ -8,11 +10,11 @@ namespace GestaoPreco.UI.Server.Controllers
     [Route("[controller]")]
     public class ProductController : ControllerBase
     {
-        private readonly IProductRepository _productRepository;
+        private readonly IMediator _mediator;
 
-        public ProductController(IProductRepository productRepository)
+        public ProductController(IMediator mediator)
         {
-            _productRepository = productRepository;
+            _mediator = mediator;
         }
 
         [HttpGet]
@@ -22,7 +24,7 @@ namespace GestaoPreco.UI.Server.Controllers
         {
             try
             {
-                var products = await _productRepository.GetAllAsync();
+                var products = await _mediator.Send(new ListProductsQuery());
                 return Ok(products);
             }
             catch
@@ -39,7 +41,7 @@ namespace GestaoPreco.UI.Server.Controllers
         {
             try
             {
-                var product = await _productRepository.GetByIdAsync(id);
+                var product = await _mediator.Send(new GetProductByIdQuery { Id = id });
 
                 if (product == null)
                     return NotFound();
@@ -56,15 +58,18 @@ namespace GestaoPreco.UI.Server.Controllers
         [ProducesResponseType(typeof(Product), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> Create([FromBody] Product product)
+        public async Task<IActionResult> Create([FromBody] CreateProductCommand command)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                await _productRepository.AddAsync(product);
-                return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+                var productId = await _mediator.Send(command);
+                if (productId == Guid.Empty)
+                    return BadRequest();
+
+                return CreatedAtAction(nameof(GetById), new { id = productId }, command);
             }
             catch
             {
@@ -72,31 +77,23 @@ namespace GestaoPreco.UI.Server.Controllers
             }
         }
 
-        [HttpPut("{id:guid}")]
+        [HttpDelete("{id:guid}")]
         [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> Update(Guid id, [FromBody] Product product)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             try
             {
-                var existingProduct = await _productRepository.GetByIdAsync(id);
-                if (existingProduct == null)
+                var success = await _mediator.Send(new DeleteProductCommand(id));
+                if (!success)
                     return NotFound();
 
-                existingProduct.Name = product.Name;
-                existingProduct.Price = product.Price;
-
-                await _productRepository.UpdateAsync(existingProduct);
                 return NoContent();
             }
             catch
             {
-                return StatusCode(500, "Erro interno ao atualizar produto.");
+                return StatusCode(500, "Erro interno ao deletar produto.");
             }
         }
     }

@@ -1,10 +1,14 @@
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using MediatR;
 using MongoDB.Driver;
 using Domain;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 
 var builder = WebApplication.CreateBuilder(args);
+
+BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.CSharpLegacy));
 
 var mongoConnectionString = builder.Configuration.GetConnectionString("MongoDb") 
     ?? "mongodb://localhost:27017";

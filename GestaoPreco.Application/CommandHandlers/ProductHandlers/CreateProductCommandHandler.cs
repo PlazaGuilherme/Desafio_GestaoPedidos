@@ -1,9 +1,7 @@
 using Domain;
-using GestaoPreco.Application.Commands.ProductCommand;
 using Infrastructure;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
+using GestaoPreco.Application.Commands.Product;
 
 namespace GestaoPreco.Application.CommandHandlers.ProductHandlers
 {
@@ -16,12 +14,13 @@ namespace GestaoPreco.Application.CommandHandlers.ProductHandlers
             _repository = repository;
         }
 
-        public async Task<Guid> Handle(CreateProductCommand command, CancellationToken cancellationToken)
+        public async Task<Guid> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
             var product = new Product
             {
-                Name = command.Name,
-                Price = command.Price
+                Id = Guid.NewGuid(),
+                Name = request.Name,
+                Price = request.Price
             };
 
             await _repository.AddAsync(product);

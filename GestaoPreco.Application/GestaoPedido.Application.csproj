@@ -20,7 +20,7 @@
     <Folder Include="Queries\Customer\" />
     <Folder Include="Queries\Order\OrderItens\" />
     <Folder Include="Queries\Product\" />
-    <Folder Include="QueryHandlers\Order\" />
+    <Folder Include="QueryHandlers\Product\" />
   </ItemGroup>
 
   <ItemGroup>
