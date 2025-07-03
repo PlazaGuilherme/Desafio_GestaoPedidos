@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="13.0.0" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.3.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.3.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="CommandHandlers\OrderHandlers\OrderItens\" />
+    <Folder Include="Commands\Customer\" />
+    <Folder Include="Commands\OrderCommand\OrderItens\" />
+    <Folder Include="Queries\Customer\" />
+    <Folder Include="Queries\Order\OrderItens\" />
+    <Folder Include="Queries\Product\" />
+    <Folder Include="QueryHandlers\Order\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GestaoPreco.Infrastructure\GestaoPreco.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,39 @@
+﻿version: '3.8'
+services:
+
+  db-sqlserver:
+    container_name: "db-sqlserver"
+    image: "mcr.microsoft.com/mssql/server:2019-latest"
+    ports:
+      - "8001:1433"
+    volumes:
+      - db:/var/opt/mssql
+      - ./configure-remote-access.sql:/docker-entrypoint-initdb.d/configure-remote-access.sql
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+      SA_PASSWORD: "mF2xXyAU9T85D7KZ8sgLXxG9x"
+    networks:
+      - Client
+
+  mongo-db:
+    container_name: "mongo-db"
+    image: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - Client
+      
+volumes:
+  mongodb_data:
+  db:
+    name: db
+    external: false
+    
+networks:
+  Client:
+    name: Client
+    driver: bridge
