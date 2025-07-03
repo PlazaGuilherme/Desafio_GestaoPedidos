@@ -14,17 +14,8 @@ Fluxo Geral
 5.	Repositório acessa o banco de dados para persistir ou recuperar informações.
 6.	Resposta é enviada de volta ao usuário.
 
-+-----------+      +------------+      +----------------+      +-----------------+
-|  Usuário  | ---> | Controller | ---> |  MediatR/Handler| ---> |  Repositório    |
-+-----------+      +------------+      +----------------+      +-----------------+
-       ^                                                                 |
-       |                                                                 v
-       +-----------------------------------------------------------+-----+
-                                                                   |
-                                                           +-------+-------+
-                                                           |   Banco de    |
-                                                           |    Dados      |
-                                                           +---------------+
+![image](https://github.com/user-attachments/assets/5d599759-d36b-4a96-9719-2668dd489729)
+
 
 Resumo das Responsabilidades
 •	Domain: Modela as regras e entidades do negócio.
