@@ -51,7 +51,7 @@ export default defineConfig({
                 target,
                 secure: false
             },
-            '^/api/Customer': {
+            '^/Customer': {
                 target,
                 secure: false
             },

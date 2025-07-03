@@ -1,5 +1,5 @@
 using Domain;
-using GestaoPreco.Application.Commands.CustomerCommand;
+using GestaoPreco.Application.Commands.Customer;
 using Infrastructure;
 using MediatR;
 using System.Threading;
@@ -24,8 +24,6 @@ namespace GestaoPreco.Application.CommandHandlers.CustomerHandlers
                 Email = command.Email,
                 Phone = command.Phone
             };
-
-            // Adicione validação se necessário
 
             await _repository.AddAsync(customer);
             return customer.Id;

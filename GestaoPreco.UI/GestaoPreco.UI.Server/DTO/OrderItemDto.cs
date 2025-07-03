@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace DTO
 {
     public class OrderItemDto
@@ -25,8 +27,16 @@ namespace DTO
     public class CreateOrderItemDto
     {
         public Guid OrderId { get; set; }
+        
+        [Required]
         public Guid ProductId { get; set; }
+        
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Quantidade deve ser maior que zero")]
         public int Quantity { get; set; }
+        
+        [Required]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Preço unitário deve ser maior que zero")]
         public decimal UnitPrice { get; set; }
     }
 

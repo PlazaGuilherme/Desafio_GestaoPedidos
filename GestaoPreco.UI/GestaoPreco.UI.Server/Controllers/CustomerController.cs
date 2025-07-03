@@ -72,7 +72,6 @@ namespace GestaoPreco.UI.Server.Controllers
 
                 _logger.LogInformation("Cliente criado: {CustomerId}", customerId);
 
-                // Opcional: buscar o cliente criado para retornar o DTO completo
                 var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = customerId });
                 return CreatedAtAction(nameof(GetById), new { id = customerId }, CustomerDto.FromEntity(customer));
             }

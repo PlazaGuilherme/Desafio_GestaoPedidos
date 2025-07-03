@@ -14,7 +14,6 @@ export default function AppRoutes() {
           <Link to="/customers" className="nav-link">👥 Clientes</Link>
           <Link to="/products" className="nav-link">📦 Produtos</Link>
           <Link to="/orders" className="nav-link">📋 Pedidos</Link>
-          <Link to="/order-items" className="nav-link">🛒 Itens</Link>
         </nav>
       </div>
       

@@ -97,17 +97,24 @@ body {
   font-size: 16px;
   transition: all 0.3s ease;
   background: rgba(255, 255, 255, 0.9);
+  color: #000000;
+}
+
+.form-control::placeholder {
+  color: #666666;
 }
 
 .form-control:focus {
   outline: none;
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  color: #000000;
 }
 
 .form-control:disabled {
   background: #f7fafc;
   cursor: not-allowed;
+  color: #666666;
 }
 
 /* Botões */
@@ -193,6 +200,7 @@ body {
   padding: 15px;
   border-bottom: 1px solid #e2e8f0;
   font-size: 14px;
+  color: #333;
 }
 
 .table tr:hover {

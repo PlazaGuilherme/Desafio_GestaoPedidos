@@ -34,7 +34,7 @@ export default function OrdersPage() {
   const [form, setForm] = useState({ 
     customerId: '', 
     date: new Date().toISOString().split('T')[0], 
-    status: 'Pending',
+    status: 'Pendente',
     items: []
   });
 
@@ -51,7 +51,7 @@ export default function OrdersPage() {
       setForm({ 
         customerId: '', 
         date: new Date().toISOString().split('T')[0], 
-        status: 'Pending',
+        status: 'Pendente',
         items: []
       });
       alert('Pedido criado com sucesso!');
@@ -65,10 +65,12 @@ export default function OrdersPage() {
     mutationFn: deleteOrder,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
-      alert('Pedido removido com sucesso!');
+      alert('✅ Pedido removido com sucesso!');
     },
     onError: (error) => {
-      alert('Erro ao remover pedido: ' + error.message);
+      console.error('Erro detalhado do delete:', error);
+      const errorMessage = error.response?.data || error.message || 'Erro desconhecido';
+      alert(`❌ Erro ao remover pedido: ${errorMessage}`);
     }
   });
 
@@ -167,10 +169,10 @@ export default function OrdersPage() {
 
   const getStatusBadge = (status) => {
     const statusMap = {
-      'Pending': 'badge-pending',
-      'Processing': 'badge-processing',
-      'Completed': 'badge-completed',
-      'Cancelled': 'badge-cancelled'
+      'Pendente': 'badge-pending',
+      'Processando': 'badge-processing',
+      'Concluido': 'badge-completed',
+      'Cancelado': 'badge-cancelled'
     };
     return `badge ${statusMap[status] || 'badge-pending'}`;
   };
@@ -180,8 +182,33 @@ export default function OrdersPage() {
       <div className="card">
         <div className="d-flex justify-between align-center mb-20">
           <h2>📋 Gerenciamento de Pedidos</h2>
-          <div className="badge badge-completed">
-            Total: {data ? data.length : 0} pedidos
+          <div className="d-flex gap-10">
+            <div className="badge badge-completed">
+              Total: {data ? data.length : 0} pedidos
+            </div>
+            <button 
+              className="btn btn-secondary"
+              onClick={() => {
+                const testData = {
+                  customerId: customers && customers.length > 0 ? customers[0].id : '00000000-0000-0000-0000-000000000000',
+                  date: new Date().toISOString().split('T')[0],
+                  status: 'Pendente',
+                  totalAmount: 100.00,
+                  items: [
+                    {
+                      productId: products && products.length > 0 ? products[0].id : '00000000-0000-0000-0000-000000000000',
+                      quantity: 1,
+                      unitPrice: 100.00
+                    }
+                  ]
+                };
+                console.log('Testando create com dados:', testData);
+                createMutation.mutate(testData);
+              }}
+              disabled={createMutation.isPending || !customers || !products}
+            >
+              🧪 Testar Create
+            </button>
           </div>
         </div>
         
@@ -224,10 +251,10 @@ export default function OrdersPage() {
                   onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
                   required
                 >
-                  <option value="Pending">Pendente</option>
-                  <option value="Processing">Processando</option>
-                  <option value="Completed">Concluído</option>
-                  <option value="Cancelled">Cancelado</option>
+                  <option value="Pendente">Pendente</option>
+                  <option value="Processando">Processando</option>
+                  <option value="Concluido">Concluído</option>
+                  <option value="Cancelado">Cancelado</option>
                 </select>
               </div>
             </div>

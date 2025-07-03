@@ -27,10 +27,12 @@ export default function ProductsPage() {
     mutationFn: deleteProduct,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      alert('Produto removido com sucesso!');
+      alert('✅ Produto removido com sucesso!');
     },
     onError: (error) => {
-      alert('Erro ao remover produto: ' + error.message);
+      console.error('Erro detalhado do delete:', error);
+      const errorMessage = error.response?.data || error.message || 'Erro desconhecido';
+      alert(`❌ Erro ao remover produto: ${errorMessage}`);
     }
   });
 
