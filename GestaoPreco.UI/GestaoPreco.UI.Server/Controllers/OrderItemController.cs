@@ -1,8 +1,8 @@
 using Domain;
-using Infrastructure;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
+using GestaoPreco.Application.Queries.OrderItem;
+using GestaoPreco.Application.Commands.OrderItem;
 
 namespace GestaoPreco.UI.Server.Controllers
 {
@@ -10,11 +10,11 @@ namespace GestaoPreco.UI.Server.Controllers
     [Route("[controller]")]
     public class OrderItemController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IMediator _mediator;
 
-        public OrderItemController(AppDbContext context)
+        public OrderItemController(IMediator mediator)
         {
-            _context = context;
+            _mediator = mediator;
         }
 
         [HttpGet]
@@ -24,7 +24,7 @@ namespace GestaoPreco.UI.Server.Controllers
         {
             try
             {
-                var items = await _context.OrderItens.ToListAsync();
+                var items = await _mediator.Send(new ListOrderItemsQuery());
                 return Ok(items);
             }
             catch
@@ -41,7 +41,7 @@ namespace GestaoPreco.UI.Server.Controllers
         {
             try
             {
-                var item = await _context.OrderItens.FindAsync(id);
+                var item = await _mediator.Send(new GetOrderItemByIdQuery { Id = id });
                 if (item == null)
                     return NotFound();
                 return Ok(item);
@@ -56,16 +56,19 @@ namespace GestaoPreco.UI.Server.Controllers
         [ProducesResponseType(typeof(OrderItem), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> Create([FromBody] OrderItem item)
+        public async Task<IActionResult> Create([FromBody] CreateOrderItemCommand command)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                _context.OrderItens.Add(item);
-                await _context.SaveChangesAsync();
-                return CreatedAtAction(nameof(GetById), new { id = item.Id }, item);
+                var itemId = await _mediator.Send(command);
+                if (itemId == Guid.Empty)
+                    return BadRequest();
+
+                var item = await _mediator.Send(new GetOrderItemByIdQuery { Id = itemId });
+                return CreatedAtAction(nameof(GetById), new { id = itemId }, item);
             }
             catch
             {
@@ -78,25 +81,18 @@ namespace GestaoPreco.UI.Server.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> Update(Guid id, [FromBody] OrderItem item)
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateOrderItemCommand command)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                var existing = await _context.OrderItens.FindAsync(id);
-                if (existing == null)
+                command.Id = id;
+                var success = await _mediator.Send(command);
+                if (!success)
                     return NotFound();
 
-                existing.ProductId = item.ProductId;
-                existing.ProductName = item.ProductName;
-                existing.Quantity = item.Quantity;
-                existing.UnitPrice = item.UnitPrice;
-                existing.TotalPrice = item.TotalPrice;
-                existing.OrderId = item.OrderId;
-
-                await _context.SaveChangesAsync();
                 return NoContent();
             }
             catch
@@ -113,12 +109,10 @@ namespace GestaoPreco.UI.Server.Controllers
         {
             try
             {
-                var existing = await _context.OrderItens.FindAsync(id);
-                if (existing == null)
+                var success = await _mediator.Send(new DeleteOrderItemCommand(id));
+                if (!success)
                     return NotFound();
 
-                _context.OrderItens.Remove(existing);
-                await _context.SaveChangesAsync();
                 return NoContent();
             }
             catch

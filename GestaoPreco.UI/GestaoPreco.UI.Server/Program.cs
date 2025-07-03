@@ -41,7 +41,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Registro do repositório
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
@@ -49,6 +48,9 @@ builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 
 builder.Services.AddMediatR(cfg => 
     cfg.RegisterServicesFromAssembly(typeof(Application.ListOrdersQuery).Assembly));
+
+
+
 
 var app = builder.Build();
 
