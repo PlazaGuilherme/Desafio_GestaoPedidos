@@ -21,7 +21,7 @@ export const getOrderWithItemsById = (id) => axios.get(`${API_URL}/${id}/with-it
 export const createOrder = (data) => axios.post(API_URL, data);
 export const createOrderWithItems = async (data) => {
   console.log('Fazendo requisição POST para:', `${API_URL}/create-with-items`);
-  console.log('Dados enviados:', data);
+  console.log('Dados enviados:', JSON.stringify(data, null, 2));
   try {
     const response = await axios.post(`${API_URL}/create-with-items`, data);
     console.log('Resposta POST createOrderWithItems:', response);

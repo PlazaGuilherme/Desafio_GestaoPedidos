@@ -171,7 +171,7 @@ namespace GestaoPreco.UI.Server.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> CreateWithItems([FromBody] CreateOrderWithItemsDto dto)
         {
-       
+
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values
@@ -183,7 +183,7 @@ namespace GestaoPreco.UI.Server.Controllers
 
             try
             {
-             
+
                 if (!Enum.IsDefined(typeof(OrderStatus), dto.Status))
                 {
                     return BadRequest(new { Error = $"Status inválido: {dto.Status}. Valores válidos: {string.Join(", ", Enum.GetNames(typeof(OrderStatus)))}" });
@@ -200,9 +200,9 @@ namespace GestaoPreco.UI.Server.Controllers
                 await _orderRepository.AddAsync(order);
 
                 foreach (var item in dto.Items)
-                { 
-                       
-                        
+                {
+
+
                     var orderItem = new OrderItem
                     {
                         OrderId = order.Id,

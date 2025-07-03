@@ -81,14 +81,22 @@ export default function OrdersPage() {
       return;
     }
     
+    // Calcular o total do pedido
+    const totalAmount = form.items.reduce((total, item) => total + (item.quantity * item.unitPrice), 0);
+    
     const orderData = {
       customerId: form.customerId,
-      date: form.date,
-      status: form.status,
-      totalAmount: form.items.reduce((total, item) => total + (item.quantity * item.unitPrice), 0),
-      items: form.items
+      date: new Date(form.date).toISOString(),
+      status: convertStatusToEnum(form.status),
+      totalAmount: totalAmount,
+      items: form.items.map(item => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice
+      }))
     };
     
+    console.log('Enviando dados do pedido:', JSON.stringify(orderData, null, 2));
     createMutation.mutate(orderData);
   };
 
@@ -177,6 +185,17 @@ export default function OrdersPage() {
     return `badge ${statusMap[status] || 'badge-pending'}`;
   };
 
+  // Função para converter status do frontend para o enum do backend
+  const convertStatusToEnum = (status) => {
+    const statusMap = {
+      'Pendente': 0, // OrderStatus.Pendente
+      'Processando': 1, // OrderStatus.Processando
+      'Concluido': 2, // OrderStatus.Concluido
+      'Cancelado': 3 // OrderStatus.Cancelado
+    };
+    return statusMap[status] || 0;
+  };
+
   return (
     <div className="fade-in">
       <div className="card">
@@ -189,25 +208,46 @@ export default function OrdersPage() {
             <button 
               className="btn btn-secondary"
               onClick={() => {
+                if (!customers || customers.length === 0 || !products || products.length === 0) {
+                  alert('❌ É necessário ter pelo menos um cliente e um produto cadastrado para testar');
+                  return;
+                }
+                
                 const testData = {
-                  customerId: customers && customers.length > 0 ? customers[0].id : '00000000-0000-0000-0000-000000000000',
-                  date: new Date().toISOString().split('T')[0],
-                  status: 'Pendente',
+                  customerId: customers[0].id,
+                  date: new Date().toISOString(),
+                  status: convertStatusToEnum('Pendente'),
                   totalAmount: 100.00,
                   items: [
                     {
-                      productId: products && products.length > 0 ? products[0].id : '00000000-0000-0000-0000-000000000000',
+                      productId: products[0].id,
                       quantity: 1,
                       unitPrice: 100.00
                     }
                   ]
                 };
-                console.log('Testando create com dados:', testData);
+                console.log('Testando create com dados:', JSON.stringify(testData, null, 2));
                 createMutation.mutate(testData);
               }}
               disabled={createMutation.isPending || !customers || !products}
             >
               🧪 Testar Create
+            </button>
+            <button 
+              className="btn btn-secondary"
+              onClick={async () => {
+                try {
+                  console.log('Testando endpoint /api/Order/with-items');
+                  const response = await getOrdersWithItems();
+                  console.log('Resposta getOrdersWithItems:', response);
+                  alert('✅ Endpoint /api/Order/with-items funcionando! Verifique o console.');
+                } catch (error) {
+                  console.error('Erro no endpoint /api/Order/with-items:', error);
+                  alert('❌ Erro no endpoint /api/Order/with-items: ' + error.message);
+                }
+              }}
+            >
+              🧪 Testar /with-items
             </button>
           </div>
         </div>
