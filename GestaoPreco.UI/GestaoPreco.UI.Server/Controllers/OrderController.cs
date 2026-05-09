@@ -18,7 +18,11 @@ namespace GestaoPreco.UI.Server.Controllers
         private readonly IOrderRepository _orderRepository;
         private readonly IOrderItemRepository _orderItemRepository;
 
-        public OrderController(IMediator mediator, IConfiguration configuration, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository)
+        public OrderController(
+            IMediator mediator,
+            IConfiguration configuration,
+            IOrderRepository orderRepository,
+            IOrderItemRepository orderItemRepository)
         {
             _mediator = mediator;
             _configuration = configuration;
@@ -31,15 +35,10 @@ namespace GestaoPreco.UI.Server.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> GetAll()
         {
-            try
-            {
-                var orders = await _mediator.Send(new ListOrdersQuery());
-                return Ok(orders);
-            }
-            catch
-            {
-                return StatusCode(500, "Erro interno ao buscar pedidos.");
-            }
+            var orders = await _mediator.Send(
+                new ListOrdersQuery());
+
+            return Ok(orders);
         }
 
         [HttpGet("{id:guid}")]
@@ -48,19 +47,16 @@ namespace GestaoPreco.UI.Server.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> GetById(Guid id)
         {
-            try
-            {
-                var order = await _mediator.Send(new GetOrderByIdQuery { Id = id });
+            var order = await _mediator.Send(
+                new GetOrderByIdQuery
+                {
+                    Id = id
+                });
 
-                if (order == null)
-                    return NotFound();
+            if (order == null)
+                return NotFound();
 
-                return Ok(order);
-            }
-            catch
-            {
-                return StatusCode(500, "Erro interno ao buscar pedido.");
-            }
+            return Ok(order);
         }
 
         [HttpGet("with-items")]
@@ -68,35 +64,29 @@ namespace GestaoPreco.UI.Server.Controllers
         [ProducesResponseType(500)]
         public async Task<ActionResult<IEnumerable<OrderWithItemsDto>>> GetOrdersWithItems()
         {
-            try
-            {
-                var orders = await _mediator.Send(new ListOrdersWithItemsQuery());
+            var orders = await _mediator.Send(
+                new ListOrdersWithItemsQuery());
 
-                var result = orders.Select(order => new OrderWithItemsDto
+            var result = orders.Select(order => new OrderWithItemsDto
+            {
+                Id = order.Id,
+                CustomerId = order.CustomerId,
+                OrderDate = order.OrderDate,
+                TotalAmount = order.TotalAmount,
+                Status = order.Status.ToString(),
+                Items = order.Items.Select(item => new OrderItemDto
                 {
-                    Id = order.Id,
-                    CustomerId = order.CustomerId,
-                    OrderDate = order.OrderDate,
-                    TotalAmount = order.TotalAmount,
-                    Status = order.Status.ToString(),
-                    Items = order.Items.Select(item => new OrderItemDto
-                    {
-                        Id = item.Id,
-                        OrderId = item.OrderId,
-                        ProductId = item.ProductId,
-                        ProductName = item.ProductName,
-                        Quantity = item.Quantity,
-                        UnitPrice = item.UnitPrice,
-                        TotalPrice = item.TotalPrice
-                    }).ToList()
-                });
+                    Id = item.Id,
+                    OrderId = item.OrderId,
+                    ProductId = item.ProductId,
+                    ProductName = item.ProductName,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice,
+                    TotalPrice = item.TotalPrice
+                }).ToList()
+            });
 
-                return Ok(result);
-            }
-            catch
-            {
-                return StatusCode(500, "Erro interno ao buscar pedidos com itens.");
-            }
+            return Ok(result);
         }
 
         [HttpGet("{id}/with-items")]
@@ -105,37 +95,32 @@ namespace GestaoPreco.UI.Server.Controllers
         [ProducesResponseType(500)]
         public async Task<ActionResult<OrderWithItemsDto>> GetOrderWithItemsById(Guid id)
         {
-            try
-            {
-                var order = await _mediator.Send(new GetOrderWithItemsByIdQuery(id));
-                if (order == null)
-                    return NotFound();
+            var order = await _mediator.Send(
+                new GetOrderWithItemsByIdQuery(id));
 
-                var result = new OrderWithItemsDto
+            if (order == null)
+                return NotFound();
+
+            var result = new OrderWithItemsDto
+            {
+                Id = order.Id,
+                CustomerId = order.CustomerId,
+                OrderDate = order.OrderDate,
+                TotalAmount = order.TotalAmount,
+                Status = order.Status.ToString(),
+                Items = order.Items.Select(item => new OrderItemDto
                 {
-                    Id = order.Id,
-                    CustomerId = order.CustomerId,
-                    OrderDate = order.OrderDate,
-                    TotalAmount = order.TotalAmount,
-                    Status = order.Status.ToString(),
-                    Items = order.Items.Select(item => new OrderItemDto
-                    {
-                        Id = item.Id,
-                        OrderId = item.OrderId,
-                        ProductId = item.ProductId,
-                        ProductName = item.ProductName,
-                        Quantity = item.Quantity,
-                        UnitPrice = item.UnitPrice,
-                        TotalPrice = item.TotalPrice
-                    }).ToList()
-                };
+                    Id = item.Id,
+                    OrderId = item.OrderId,
+                    ProductId = item.ProductId,
+                    ProductName = item.ProductName,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice,
+                    TotalPrice = item.TotalPrice
+                }).ToList()
+            };
 
-                return Ok(result);
-            }
-            catch
-            {
-                return StatusCode(500, "Erro interno ao buscar pedido com itens.");
-            }
+            return Ok(result);
         }
 
         [HttpPost]
@@ -147,22 +132,16 @@ namespace GestaoPreco.UI.Server.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            try
-            {
-                var fixedCustomerId = Guid.Parse(_configuration["OrderSettings:FixedCustomerId"]);
-                command.CustomerId = fixedCustomerId;
+            var fixedCustomerId = Guid.Parse(_configuration["OrderSettings:FixedCustomerId"]);
 
-                var orderId = await _mediator.Send(command);
+            command.CustomerId = fixedCustomerId;
 
-                if (orderId == Guid.Empty)
-                    return BadRequest();
+            var orderId = await _mediator.Send(command);
 
-                return Ok(orderId);
-            }
-            catch
-            {
-                return StatusCode(500, "Erro interno ao criar pedido.");
-            }
+            if (orderId == Guid.Empty)
+                return BadRequest();
+
+            return Ok(orderId);
         }
 
         [HttpPost("create-with-items")]
@@ -171,54 +150,52 @@ namespace GestaoPreco.UI.Server.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> CreateWithItems([FromBody] CreateOrderWithItemsDto dto)
         {
-
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values
                     .SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
-                return BadRequest(new { Errors = errors, ModelState = ModelState });
+
+                return BadRequest(new
+                {
+                    Errors = errors,
+                    ModelState = ModelState
+                });
             }
 
-            try
+            if (!Enum.IsDefined(typeof(OrderStatus), dto.Status))
             {
-
-                if (!Enum.IsDefined(typeof(OrderStatus), dto.Status))
+                return BadRequest(new
                 {
-                    return BadRequest(new { Error = $"Status inválido: {dto.Status}. Valores válidos: {string.Join(", ", Enum.GetNames(typeof(OrderStatus)))}" });
-                }
+                    Error = $"Status inválido: {dto.Status}. Valores válidos: {string.Join(", ", Enum.GetNames(typeof(OrderStatus)))}"
+                });
+            }
 
-                var order = new Order
+            var order = new Order
+            {
+                CustomerId = dto.CustomerId,
+                OrderDate = dto.Date,
+                TotalAmount = dto.TotalAmount,
+                Status = dto.Status
+            };
+
+            await _orderRepository.AddAsync(order);
+
+            foreach (var item in dto.Items)
+            {
+                var orderItem = new OrderItem
                 {
-                    CustomerId = dto.CustomerId,
-                    OrderDate = dto.Date,
-                    TotalAmount = dto.TotalAmount,
-                    Status = dto.Status
+                    OrderId = order.Id,
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice
                 };
 
-                await _orderRepository.AddAsync(order);
-
-                foreach (var item in dto.Items)
-                {
-
-
-                    var orderItem = new OrderItem
-                    {
-                        OrderId = order.Id,
-                        ProductId = item.ProductId,
-                        Quantity = item.Quantity,
-                        UnitPrice = item.UnitPrice
-                    };
-                    await _orderItemRepository.AddAsync(orderItem);
-                }
-
-                return Ok(new { order.Id });
+                await _orderItemRepository.AddAsync(orderItem);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { Error = "Erro interno ao criar pedido com itens.", Details = ex.Message });
-            }
+
+            return Ok(new { order.Id });
         }
 
         [HttpPut("{id:guid}")]
@@ -226,28 +203,25 @@ namespace GestaoPreco.UI.Server.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateOrderCommand command)
+        public async Task<IActionResult> Update(
+            Guid id,
+            [FromBody] UpdateOrderCommand command)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            try
-            {
-                var fixedCustomerId = Guid.Parse(_configuration["OrderSettings:FixedCustomerId"]);
-                command.Id = id;
-                command.CustomerId = fixedCustomerId;
+            var fixedCustomerId = Guid.Parse(
+                _configuration["OrderSettings:FixedCustomerId"]);
 
-                var success = await _mediator.Send(command);
+            command.Id = id;
+            command.CustomerId = fixedCustomerId;
 
-                if (!success)
-                    return NotFound();
+            var success = await _mediator.Send(command);
 
-                return Ok(true);
-            }
-            catch
-            {
-                return StatusCode(500, "Erro interno ao atualizar pedido.");
-            }
+            if (!success)
+                return NotFound();
+
+            return Ok(true);
         }
 
         [HttpDelete("{id:guid}")]
@@ -256,18 +230,16 @@ namespace GestaoPreco.UI.Server.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> Delete(Guid id)
         {
-            try
-            {
-                var success = await _mediator.Send(new DeleteOrderCommand { Id = id });
-                if (!success)
-                    return NotFound();
+            var success = await _mediator.Send(
+                new DeleteOrderCommand
+                {
+                    Id = id
+                });
 
-                return NoContent();
-            }
-            catch
-            {
-                return StatusCode(500, "Erro interno ao deletar pedido.");
-            }
+            if (!success)
+                return NotFound();
+
+            return NoContent();
         }
     }
 }

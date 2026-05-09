@@ -22,15 +22,10 @@ namespace GestaoPreco.UI.Server.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> GetAll()
         {
-            try
-            {
-                var items = await _mediator.Send(new ListOrderItemsQuery());
-                return Ok(items);
-            }
-            catch
-            {
-                return StatusCode(500, "Erro interno ao buscar itens do pedido.");
-            }
+            var items = await _mediator.Send(
+                new ListOrderItemsQuery());
+
+            return Ok(items);
         }
 
         [HttpGet("{id:guid}")]
@@ -39,41 +34,43 @@ namespace GestaoPreco.UI.Server.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> GetById(Guid id)
         {
-            try
-            {
-                var item = await _mediator.Send(new GetOrderItemByIdQuery { Id = id });
-                if (item == null)
-                    return NotFound();
-                return Ok(item);
-            }
-            catch
-            {
-                return StatusCode(500, "Erro interno ao buscar item do pedido.");
-            }
+            var item = await _mediator.Send(
+                new GetOrderItemByIdQuery
+                {
+                    Id = id
+                });
+
+            if (item == null)
+                return NotFound();
+
+            return Ok(item);
         }
 
         [HttpPost]
         [ProducesResponseType(typeof(OrderItem), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> Create([FromBody] CreateOrderItemCommand command)
+        public async Task<IActionResult> Create(
+            [FromBody] CreateOrderItemCommand command)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            try
-            {
-                var itemId = await _mediator.Send(command);
-                if (itemId == Guid.Empty)
-                    return BadRequest();
+            var itemId = await _mediator.Send(command);
 
-                var item = await _mediator.Send(new GetOrderItemByIdQuery { Id = itemId });
-                return CreatedAtAction(nameof(GetById), new { id = itemId }, item);
-            }
-            catch
-            {
-                return StatusCode(500, "Erro interno ao criar item do pedido.");
-            }
+            if (itemId == Guid.Empty)
+                return BadRequest();
+
+            var item = await _mediator.Send(
+                new GetOrderItemByIdQuery
+                {
+                    Id = itemId
+                });
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = itemId },
+                item);
         }
 
         [HttpPut("{id:guid}")]
@@ -81,24 +78,21 @@ namespace GestaoPreco.UI.Server.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateOrderItemCommand command)
+        public async Task<IActionResult> Update(
+            Guid id,
+            [FromBody] UpdateOrderItemCommand command)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            try
-            {
-                command.Id = id;
-                var success = await _mediator.Send(command);
-                if (!success)
-                    return NotFound();
+            command.Id = id;
 
-                return NoContent();
-            }
-            catch
-            {
-                return StatusCode(500, "Erro interno ao atualizar item do pedido.");
-            }
+            var success = await _mediator.Send(command);
+
+            if (!success)
+                return NotFound();
+
+            return NoContent();
         }
 
         [HttpDelete("{id:guid}")]
@@ -107,18 +101,13 @@ namespace GestaoPreco.UI.Server.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> Delete(Guid id)
         {
-            try
-            {
-                var success = await _mediator.Send(new DeleteOrderItemCommand(id));
-                if (!success)
-                    return NotFound();
+            var success = await _mediator.Send(
+                new DeleteOrderItemCommand(id));
 
-                return NoContent();
-            }
-            catch
-            {
-                return StatusCode(500, "Erro interno ao deletar item do pedido.");
-            }
+            if (!success)
+                return NotFound();
+
+            return NoContent();
         }
     }
 }

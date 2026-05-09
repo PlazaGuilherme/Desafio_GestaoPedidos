@@ -26,26 +26,28 @@ namespace GestaoPedido.UI.Server.Middleware
             {
                 _logger.LogError(ex, ex.Message);
 
-                var statusCode = StatusCodes.Status500InternalServerError;
-
-                await errorRepository.SaveAsync(new ErrorLog
+                try
                 {
-                    Id = Guid.NewGuid(),
-                    Message = ex.Message,
-                    StackTrace = ex.StackTrace ?? "",
-                    Path = context.Request.Path,
-                    Method = context.Request.Method,
-                    StatusCode = statusCode,
-                    CreatedAt = DateTime.UtcNow
-                });
+                    await errorRepository.SaveAsync(new ErrorLog
+                    {
+                        Id = Guid.NewGuid(),
+                        Message = ex.Message,
+                        StackTrace = ex.StackTrace ?? "",
+                        Path = context.Request.Path,
+                        Method = context.Request.Method,
+                        StatusCode = 500,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+                catch
+                {
+                }
 
-                context.Response.StatusCode = statusCode;
-                context.Response.ContentType = "application/json";
+                context.Response.StatusCode = 500;
 
                 await context.Response.WriteAsJsonAsync(new
                 {
-                    statusCode,
-                    message = "Erro interno do servidor"
+                    message = "Erro interno"
                 });
             }
         }

@@ -1,8 +1,10 @@
 using Domain;
+using GestaoPedido.Infrastructure.Logging;
 using GestaoPedido.Infrastructure.Repository;
 using GestaoPedido.UI.Server.Extensions;
 using GestaoPedido.UI.Server.Middleware;
 using Infrastructure;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -63,6 +65,30 @@ builder.Services.AddScoped<IErrorLogRepository, ErrorLogRepository>();
 builder.Services.AddMediatR(cfg => 
     cfg.RegisterServicesFromAssembly(typeof(Application.ListOrdersQuery).Assembly));
 
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var logger = context.HttpContext.RequestServices
+            .GetRequiredService<IErrorLogRepository>();
+
+        var errors = context.ModelState
+            .SelectMany(x => x.Value.Errors)
+            .Select(e => e.ErrorMessage);
+
+        logger.SaveAsync(new ErrorLog
+        {
+            Id = Guid.NewGuid(),
+            Message = string.Join(" | ", errors),
+            Path = context.HttpContext.Request.Path,
+            Method = context.HttpContext.Request.Method,
+            StatusCode = 400,
+            CreatedAt = DateTime.UtcNow
+        }).Wait();
+
+        return new BadRequestObjectResult(context.ModelState);
+    };
+});
 
 
 
