@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36203.30
+# Visual Studio Version 18
+VisualStudioVersion = 18.5.11723.231 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestaoPedido.Application", "GestaoPreco.Application\GestaoPedido.Application.csproj", "{93B754C2-498B-4157-8B10-61D8613C2566}"
 EndProject
@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docker", "Docker", "{380A75
 	ProjectSection(SolutionItems) = preProject
 		..\..\..\Downloads\docker-compose.yml = ..\..\..\Downloads\docker-compose.yml
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestaoPreco.UnitTests", "GestaoPreco.UnitTests\GestaoPreco.UnitTests.csproj", "{B146B9D0-479E-9E5E-3738-BBE02702C864}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,6 +48,10 @@ Global
 		{C8C1BF45-5A6E-4577-8998-8F7AA7F3E063}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8C1BF45-5A6E-4577-8998-8F7AA7F3E063}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8C1BF45-5A6E-4577-8998-8F7AA7F3E063}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B146B9D0-479E-9E5E-3738-BBE02702C864}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B146B9D0-479E-9E5E-3738-BBE02702C864}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B146B9D0-479E-9E5E-3738-BBE02702C864}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B146B9D0-479E-9E5E-3738-BBE02702C864}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
