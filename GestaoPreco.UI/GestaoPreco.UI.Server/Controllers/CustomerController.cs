@@ -56,29 +56,29 @@ namespace GestaoPreco.UI.Server.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(CustomerDto), 201)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(500)]
+        [ProducesResponseType(typeof(CustomerDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Create([FromBody] CreateCustomerCommand command)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            try
-            {
-                var customerId = await _mediator.Send(command);
-                if (customerId == Guid.Empty)
-                    return BadRequest();
+            var customerId = await _mediator.Send(command);
 
-                _logger.LogInformation("Cliente criado: {CustomerId}", customerId);
+            _logger.LogInformation(
+                "Cliente criado: {CustomerId}",
+                customerId);
 
-                var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = customerId });
-                return CreatedAtAction(nameof(GetById), new { id = customerId }, CustomerDto.FromEntity(customer));
-            }
-            catch
-            {
-                return StatusCode(500, "Erro interno ao criar cliente.");
-            }
+            var customer = await _mediator.Send(
+                new GetCustomerByIdQuery
+                {
+                    Id = customerId
+                });
+
+            return CreatedAtAction(nameof(GetById),new { id = customerId },CustomerDto.FromEntity(customer));
         }
 
         [HttpPut("{id:guid}")]

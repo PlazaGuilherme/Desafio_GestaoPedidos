@@ -1,11 +1,13 @@
+using Domain;
+using GestaoPedido.Infrastructure.Repository;
+using GestaoPedido.UI.Server.Extensions;
+using GestaoPedido.UI.Server.Middleware;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using MongoDB.Driver;
-using Domain;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using GestaoPedido.Infrastructure.Repository;
+using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,6 +58,7 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+builder.Services.AddScoped<IErrorLogRepository, ErrorLogRepository>();
 
 builder.Services.AddMediatR(cfg => 
     cfg.RegisterServicesFromAssembly(typeof(Application.ListOrdersQuery).Assembly));
@@ -71,6 +74,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ExceptionMiddleware>();
+app.UseCustomException();
 app.UseCors("AllowAll");
 app.UseAuthorization();
 app.MapControllers();

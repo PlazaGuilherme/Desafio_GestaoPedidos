@@ -1,4 +1,5 @@
 using Domain;
+using System.ComponentModel.DataAnnotations;
 
 namespace DTO
 {
@@ -7,7 +8,7 @@ namespace DTO
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public string Phone { get; set; } = string.Empty;
+        [MaxLength(50)] public string Phone { get; set; } = string.Empty;
 
         public static CustomerDto FromEntity(Domain.Customer c) => new()
         {
@@ -29,6 +30,6 @@ namespace DTO
     {
         public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public string Phone { get; set; } = string.Empty;
+        [MaxLength(50)] public string Phone { get; set; } = string.Empty;
     }
 }

@@ -1,5 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using Domain;
+using GestaoPedido.Infrastructure.Logging;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure
 {
@@ -11,6 +12,7 @@ namespace Infrastructure
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItens { get; set; }
         public DbSet<Customer> Customers { get; set; }
+        public DbSet<ErrorLog> ErrorLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
