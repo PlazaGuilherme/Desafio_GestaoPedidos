@@ -26,22 +26,18 @@ namespace GestaoPedido.UI.Server.Middleware
             {
                 _logger.LogError(ex, ex.Message);
 
-                try
+
+                await errorRepository.SaveAsync(new ErrorLog
                 {
-                    await errorRepository.SaveAsync(new ErrorLog
-                    {
-                        Id = Guid.NewGuid(),
-                        Message = ex.Message,
-                        StackTrace = ex.StackTrace ?? "",
-                        Path = context.Request.Path,
-                        Method = context.Request.Method,
-                        StatusCode = 500,
-                        CreatedAt = DateTime.UtcNow
-                    });
-                }
-                catch
-                {
-                }
+                    Id = Guid.NewGuid(),
+                    Message = ex.Message,
+                    StackTrace = ex.StackTrace ?? "",
+                    Path = context.Request.Path,
+                    Method = context.Request.Method,
+                    StatusCode = 500,
+                    CreatedAt = DateTime.UtcNow
+                });
+
 
                 context.Response.StatusCode = 500;
 

@@ -1,6 +1,9 @@
+using System.Net.Http.Headers;
 using Domain;
+using GestaoPedido.Infrastructure.Interface;
 using GestaoPedido.Infrastructure.Logging;
 using GestaoPedido.Infrastructure.Repository;
+using GestaoPedido.Infrastructure.Service;
 using GestaoPedido.UI.Server.Extensions;
 using GestaoPedido.UI.Server.Middleware;
 using Infrastructure;
@@ -61,6 +64,15 @@ builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 builder.Services.AddScoped<IErrorLogRepository, ErrorLogRepository>();
+builder.Services.AddHttpClient<IAiPricingService, GroqPricingService>((sp, client) =>
+{
+    var cfg = sp.GetRequiredService<IConfiguration>();
+    var baseUrl = cfg["Groq:BaseUrl"] ?? "https://api.groq.com/openai/v1/";
+    if (!baseUrl.EndsWith('/'))
+        baseUrl += "/";
+    client.BaseAddress = new Uri(baseUrl);
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+});
 
 builder.Services.AddMediatR(cfg => 
     cfg.RegisterServicesFromAssembly(typeof(Application.ListOrdersQuery).Assembly));

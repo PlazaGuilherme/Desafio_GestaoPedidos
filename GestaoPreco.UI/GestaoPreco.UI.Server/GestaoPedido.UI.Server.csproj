@@ -7,6 +7,7 @@
     <SpaRoot>..\gestaopreco.ui.client</SpaRoot>
     <SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
     <SpaProxyServerUrl>https://localhost:61180</SpaProxyServerUrl>
+    <UserSecretsId>e45511eb-1502-4c83-a0b5-1b1c86a14baa</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
